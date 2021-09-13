@@ -15,11 +15,12 @@
   </div>
   <div class="card-body">
     <table class="table-list table table-hover table-striped" data-url="{{ route('dosen.index') }}"
-      data-cols="action!order|search,nidn,user.name,jenis_kelamin,prodi.name,status">
+      data-cols="action!order|search,nidn,nip,user.name,jenis_kelamin,prodi.name,status">
       <thead>
         <tr>
           <th>#</th>
           <th>NIDN</th>
+          <th>NIP</th>
           <th>Nama</th>
           <th>JK</th>
           <th>Prodi</th>
