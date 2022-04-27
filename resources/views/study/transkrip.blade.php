@@ -84,7 +84,11 @@
           <tr>
             <th align="left">Tgl. Lulus</th>
             <th align="left" width="10">:</th>
-            <td></td>
+            <td>{{ isset($data->prodi->opt) && isset($data->prodi->opt['tgl_lulus']) &&
+              $data->prodi->opt['tgl_lulus'] != null && $data->prodi->opt['tgl_lulus'] !=
+              ''?Carbon\Carbon::parse($data->prodi->opt['tgl_lulus'])->translatedFormat('j
+              F
+              Y'):'-' }}</td>
           </tr>
         </table>
       </td>
@@ -171,19 +175,25 @@
       <td align="right">
         <table>
           <tr>
-            <td>Palopo, {{ now()->translatedFormat('j F Y') }}</td>
+            <td>Palopo, {{ isset($data->prodi->opt) && isset($data->prodi->opt['tgl_ttd']) &&
+              $data->prodi->opt['tgl_ttd'] != null && $data->prodi->opt['tgl_ttd'] !=
+              ''?Carbon\Carbon::parse($data->prodi->opt['tgl_ttd'])->translatedFormat('j
+              F
+              Y'):now()->translatedFormat('j F Y') }}</td>
           </tr>
           <tr>
             <td>Ketua Prodi</td>
           </tr>
           <tr>
-            <td height="75"></td>
+            <td height="65"></td>
           </tr>
           <tr>
-            <td style="border-bottom: solid 1px" width="175"></td>
+            <td style="border-bottom: solid 1px;vertical-align: bottom;font-weight: bold" width="175">
+              {{ isset($data->prodi->opt)?$data->prodi->opt['kaprodi_name']:'' }}
+            </td>
           </tr>
           <tr>
-            <td>NIP.</td>
+            <td style="vertical-align: top">NIP. {{ isset($data->prodi->opt)?$data->prodi->opt['kaprodi_nip']:'' }}</td>
           </tr>
         </table>
       </td>

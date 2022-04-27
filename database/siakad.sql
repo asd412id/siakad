@@ -1,8 +1,8 @@
--- MariaDB dump 10.19  Distrib 10.6.4-MariaDB, for Win64 (AMD64)
+-- MariaDB dump 10.19  Distrib 10.7.3-MariaDB, for Win64 (AMD64)
 --
 -- Host: localhost    Database: siakad
 -- ------------------------------------------------------
--- Server version	10.6.4-MariaDB
+-- Server version	10.7.3-MariaDB
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -232,7 +232,19 @@ CREATE TABLE `siakad_migrations` (
 
 LOCK TABLES `siakad_migrations` WRITE;
 /*!40000 ALTER TABLE `siakad_migrations` DISABLE KEYS */;
-INSERT INTO `siakad_migrations` VALUES (1,'2014_10_12_000000_create_users_table',1),(2,'2014_10_12_100000_create_password_resets_table',1),(3,'2019_08_19_000000_create_failed_jobs_table',1),(4,'2019_12_14_000001_create_personal_access_tokens_table',1),(5,'2021_09_05_091837_create_mahasiswas_table',1),(6,'2021_09_05_093806_create_prodis_table',1),(7,'2021_09_05_093834_create_dosens_table',1),(8,'2021_09_05_094638_create_mata_kuliahs_table',1),(9,'2021_09_05_103358_create_dosen_makul_table',1),(10,'2021_09_05_103513_create_krs_table',1),(11,'2021_09_05_104603_create_nilai_table',1),(12,'2021_09_05_113635_create_configs_table',1);
+INSERT INTO `siakad_migrations` VALUES
+(1,'2014_10_12_000000_create_users_table',1),
+(2,'2014_10_12_100000_create_password_resets_table',1),
+(3,'2019_08_19_000000_create_failed_jobs_table',1),
+(4,'2019_12_14_000001_create_personal_access_tokens_table',1),
+(5,'2021_09_05_091837_create_mahasiswas_table',1),
+(6,'2021_09_05_093806_create_prodis_table',1),
+(7,'2021_09_05_093834_create_dosens_table',1),
+(8,'2021_09_05_094638_create_mata_kuliahs_table',1),
+(9,'2021_09_05_103358_create_dosen_makul_table',1),
+(10,'2021_09_05_103513_create_krs_table',1),
+(11,'2021_09_05_104603_create_nilai_table',1),
+(12,'2021_09_05_113635_create_configs_table',1);
 /*!40000 ALTER TABLE `siakad_migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -248,9 +260,10 @@ CREATE TABLE `siakad_nilai` (
   `mahasiswa_id` bigint(20) NOT NULL,
   `mata_kuliah_id` bigint(20) NOT NULL,
   `sks` int(11) NOT NULL,
-  `index_nilai` char(1) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'A - E',
-  `poin_nilai` char(1) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '4 - 0',
-  `total_nilai` int(11) NOT NULL COMMENT 'sks x poin_nilai',
+  `bnilai` int(11) NOT NULL COMMENT 'Big Nilai',
+  `index_nilai` char(2) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'A+ - E',
+  `poin_nilai` char(5) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '4 - 0',
+  `total_nilai` double(8,2) NOT NULL COMMENT 'sks x poin_nilai',
   `opt` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`opt`)),
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -363,7 +376,9 @@ CREATE TABLE `siakad_users` (
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `username` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role` char(1) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '0:admin, 1:dosen, 2:mahasiswa',
+  `role` char(1) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '0:superadmin, 1:dosen, 2:mahasiswa, 3:operator',
+  `prodi_id` bigint(20) DEFAULT NULL,
+  `jenis_kelamin` char(1) COLLATE utf8mb4_unicode_ci DEFAULT 'L' COMMENT 'L: Laki-laki, P: Perempuan',
   `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -379,7 +394,8 @@ CREATE TABLE `siakad_users` (
 
 LOCK TABLES `siakad_users` WRITE;
 /*!40000 ALTER TABLE `siakad_users` DISABLE KEYS */;
-INSERT INTO `siakad_users` VALUES (1,'9eeb14f0-b85d-409d-967b-8b7c9da880b4','Administrator','admin','$2y$10$iLYZ3eKUepO8VBepU.zGle2pAljvHC9e8JN7jE8F8eMDZvNvgEfZu','0',NULL,'2021-09-13 14:03:53','2021-09-13 14:03:53');
+INSERT INTO `siakad_users` VALUES
+(1,'a2f76b4d-f6a8-4861-b5db-7cc6f592e660','Administrator','admin','$2y$10$YEwscjDr4GqBdZXFdEPd8ewRgpT79G046Qxai70vk1bnRYbKtpnSG','0',NULL,'L',NULL,'2022-04-27 06:06:46','2022-04-27 06:06:46');
 /*!40000 ALTER TABLE `siakad_users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -392,4 +408,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-09-13 22:04:47
+-- Dump completed on 2022-04-27 14:06:51

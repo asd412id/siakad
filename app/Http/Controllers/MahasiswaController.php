@@ -150,6 +150,11 @@ class MahasiswaController extends Controller
 	public function edit(Mahasiswa $mahasiswa)
 	{
 		if (request()->ajax()) {
+			if (!auth()->user()->isAdmin) {
+				if ($mahasiswa->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
 			$data = [
 				'url' => route('mahasiswa.update', ['mahasiswa' => $mahasiswa]),
 				'data' => $mahasiswa,

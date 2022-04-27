@@ -11,11 +11,12 @@
   </div>
   <div class="card-body">
     <table class="table-list table table-hover table-striped" data-url="{{ route('prodi.index') }}"
-      data-cols="action!order|search,name,dosen.length!order|search,mahasiswa.length!order|search,matakuliah.length!order|search">
+      data-cols="action!order|search,name,kaprodi!order|search,dosen.length!order|search,mahasiswa.length!order|search,matakuliah.length!order|search">
       <thead>
         <tr>
           <th>#</th>
           <th>Nama Program Studi</th>
+          <th>Ketua Prodi</th>
           <th>Jumlah Dosen</th>
           <th>Jumlah Mahasiswa</th>
           <th>Jumlah Mata Kuliah</th>

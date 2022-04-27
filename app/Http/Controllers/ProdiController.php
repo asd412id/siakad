@@ -33,7 +33,7 @@ class ProdiController extends Controller
 
 					return $btn;
 				})
-				->rawColumns(['action'])
+				->rawColumns(['action', 'kaprodi'])
 				->make(true);
 		}
 		$data = [
@@ -79,6 +79,7 @@ class ProdiController extends Controller
 			$insert = new Prodi();
 			$insert->uuid = (string) Str::uuid();
 			$insert->name = $request->name;
+			$insert->opt = $request->opt;
 			if ($insert->save()) {
 				return response()->json(['message' => 'Data berhasil disimpan']);
 			}
@@ -137,6 +138,7 @@ class ProdiController extends Controller
 
 			$insert = $prodi;
 			$insert->name = $request->name;
+			$insert->opt = $request->opt;
 			if ($insert->save()) {
 				return response()->json(['message' => 'Data berhasil disimpan']);
 			}

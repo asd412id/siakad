@@ -90,7 +90,7 @@
                       <tr class="mk-selected" id="mk-choice-{{ $v->semester }}-{{ $v->mata_kuliah_id }}">
                         <td class="mk text-nowrap">{{ $v->mata_kuliah->name }}</td>
                         <td class="smt text-center">{{ $v->mata_kuliah->semester }}</td>
-                        <td><input type="number" class="form-control nil"
+                        <td><input type="number" style="max-width: 100px" class="form-control nil"
                             name="bnilai[{{ $smt->semester }}][{{ $v->mata_kuliah_id }}][]"
                             value="{{ $v->nilai&&$v->nilai->bnilai?$v->nilai->bnilai:null }}"></td>
                         <td>
