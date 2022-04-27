@@ -24,6 +24,9 @@ class DosenController extends Controller
 				->with('prodi')
 				->with('user')
 				->select('dosens.*');
+			if (!auth()->user()->isAdmin) {
+				$data->where('prodi_id', auth()->user()->prodi_id);
+			}
 			return DataTables::of($data)
 				->addColumn('action', function ($row) {
 
@@ -75,16 +78,24 @@ class DosenController extends Controller
 	public function store(Request $request)
 	{
 		if (request()->ajax()) {
-			$request->validate([
+			$rules = [
 				'name' => 'required',
 				'prodi_id' => 'required',
 				'nidn' => 'required|unique:users,username',
-			], [
+			];
+			$msgs = [
 				'name.required' => 'Nama dosen harus diisi',
 				'prodi_id.required' => 'Program studi harus dipilih',
 				'nidn.required' => 'NIDN harus diisi',
 				'nidn.unique' => 'NIDN telah digunakan'
-			]);
+			];
+
+			if (!auth()->user()->isAdmin) {
+				unset($rules['prodi_id']);
+				unset($msgs['prodi_id.required']);
+			}
+
+			$request->validate($rules, $msgs);
 
 			$user = new User();
 			$user->uuid = Str::uuid();
@@ -101,7 +112,7 @@ class DosenController extends Controller
 				$insert->tempat_lahir = $request->tempat_lahir;
 				$insert->tgl_lahir = $request->tgl_lahir;
 				$insert->jenis_kelamin = $request->jenis_kelamin;
-				$insert->prodi_id = $request->prodi_id;
+				$insert->prodi_id = auth()->user()->isAdmin ? $request->prodi_id : auth()->user()->prodi_id;
 				$insert->status = $request->status;
 				if ($insert->save()) {
 					$insert->mata_kuliah()->sync($request->mata_kuliah);
@@ -134,6 +145,11 @@ class DosenController extends Controller
 	public function edit(Dosen $dosen)
 	{
 		if (request()->ajax()) {
+			if (!auth()->user()->isAdmin) {
+				if ($dosen->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
 			$data = [
 				'url' => route('dosen.update', ['dosen' => $dosen]),
 				'data' => $dosen,
@@ -157,16 +173,29 @@ class DosenController extends Controller
 	public function update(Request $request, Dosen $dosen)
 	{
 		if (request()->ajax()) {
-			$request->validate([
+			if (!auth()->user()->isAdmin) {
+				if ($dosen->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
+			$rules = [
 				'name' => 'required',
 				'prodi_id' => 'required',
 				'nidn' => 'required|unique:users,username,' . $dosen->user_id,
-			], [
+			];
+			$msgs = [
 				'name.required' => 'Nama dosen harus diisi',
 				'prodi_id.required' => 'Program studi harus dipilih',
 				'nidn.required' => 'NIDN harus diisi',
 				'nidn.unique' => 'NIDN telah digunakan'
-			]);
+			];
+
+			if (!auth()->user()->isAdmin) {
+				unset($rules['prodi_id']);
+				unset($msgs['prodi_id.required']);
+			}
+
+			$request->validate($rules, $msgs);
 
 			$user = $dosen->user;
 			$user->name = $request->name;
@@ -184,7 +213,7 @@ class DosenController extends Controller
 				$insert->tempat_lahir = $request->tempat_lahir;
 				$insert->tgl_lahir = $request->tgl_lahir;
 				$insert->jenis_kelamin = $request->jenis_kelamin;
-				$insert->prodi_id = $request->prodi_id;
+				$insert->prodi_id = auth()->user()->isAdmin ? $request->prodi_id : auth()->user()->prodi_id;
 				$insert->status = $request->status;
 				if ($insert->save()) {
 					$insert->mata_kuliah()->sync($request->mata_kuliah);
@@ -206,6 +235,11 @@ class DosenController extends Controller
 	public function delete(Dosen $dosen)
 	{
 		if (request()->ajax()) {
+			if (!auth()->user()->isAdmin) {
+				if ($dosen->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
 			$data = [
 				'url' => route('dosen.destroy', ['dosen' => $dosen]),
 				'data' => $dosen->nidn . ' - ' . $dosen->user->name
@@ -220,6 +254,11 @@ class DosenController extends Controller
 	public function destroy(Dosen $dosen)
 	{
 		if (request()->ajax()) {
+			if (!auth()->user()->isAdmin) {
+				if ($dosen->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
 			if ($dosen->delete()) {
 				return response()->json(['message' => 'Data berhasil dihapus']);
 			}

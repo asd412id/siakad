@@ -12,8 +12,8 @@
           class="img-circle elevation-2" alt="User Image">
       </div>
       <div class="info">
-        <a href="#" data-url="{{ route('account') }}" class="open-modal"
-          title="{{ auth()->user()->name }}">{{ auth()->user()->name }}</a>
+        <a href="#" data-url="{{ route('account') }}" class="open-modal" title="{{ auth()->user()->name }}">{{
+          auth()->user()->name }}</a>
       </div>
     </div>
     <nav class="mt-2">
@@ -24,13 +24,21 @@
             <p>Beranda</p>
           </a>
         </li>
-        @if (auth()->user()->role == 0)
+        @if (auth()->user()->role == 0 || auth()->user()->role == 3)
+        @if (auth()->user()->isAdmin)
         <li class="nav-item">
           <a href="{{ route('prodi.index') }}" class="nav-link {{ request()->routeIs('prodi*')?'active':'' }}">
             <i class="nav-icon fas fa-building"></i>
             <p>Program Studi</p>
           </a>
         </li>
+        <li class="nav-item">
+          <a href="{{ route('operator.index') }}" class="nav-link {{ request()->routeIs('operator*')?'active':'' }}">
+            <i class="nav-icon fas fa-users"></i>
+            <p>Operator</p>
+          </a>
+        </li>
+        @endif
         <li class="nav-item">
           <a href="{{ route('matakuliah.index') }}"
             class="nav-link {{ request()->routeIs('matakuliah*')?'active':'' }}">

@@ -75,7 +75,7 @@ class CommonController extends BaseController
 	{
 		if (request()->ajax()) {
 			$data = [
-				'title' => auth()->user()->role == 0 ? 'Pengaturan Akun' : 'Ubah Password',
+				'title' => auth()->user()->role == 0 || auth()->user()->role == 3 ? 'Pengaturan Akun' : 'Ubah Password',
 				'user' => auth()->user(),
 				'configs' => Config::configs(),
 			];
@@ -109,6 +109,8 @@ class CommonController extends BaseController
 				unset($rules['username']);
 				unset($msgs['name.required']);
 				unset($msgs['username.required']);
+			} elseif (auth()->user()->role == 3) {
+				unset($rules['name']);
 			}
 
 			$r->validate($rules, $msgs);
@@ -121,6 +123,8 @@ class CommonController extends BaseController
 
 			if (auth()->user()->role == 0) {
 				$user->name = $r->name;
+				$user->username = $r->username;
+			} elseif (auth()->user()->role == 3) {
 				$user->username = $r->username;
 			}
 			if ($r->newpassword) {

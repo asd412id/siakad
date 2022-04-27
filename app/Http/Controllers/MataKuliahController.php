@@ -22,6 +22,9 @@ class MataKuliahController extends Controller
 			$data = MataKuliah::query()
 				->with('prodi')
 				->select('mata_kuliahs.*');
+			if (!auth()->user()->isAdmin) {
+				$data->where('prodi_id', auth()->user()->prodi_id);
+			}
 			return DataTables::of($data)
 				->addColumn('action', function ($row) {
 
@@ -73,23 +76,32 @@ class MataKuliahController extends Controller
 	public function store(Request $request)
 	{
 		if (request()->ajax()) {
-			$request->validate([
+			$rules = [
 				'name' => 'required',
 				'prodi_id' => 'required',
 				'semester' => 'required|numeric',
-			], [
+			];
+
+			$msgs = [
 				'name.required' => 'Nama matakuliah harus diisi',
 				'prodi_id.required' => 'Program studi harus dipilih',
 				'semester.required' => 'Semester harus diisi',
 				'semester.numeric' => 'Semester harus berupa angka'
-			]);
+			];
+
+			if (!auth()->user()->isAdmin) {
+				unset($rules['prodi_id']);
+				unset($msgs['prodi_id.required']);
+			}
+
+			$request->validate($rules, $msgs);
 
 			$insert = new MataKuliah();
 			$insert->uuid = (string) Str::uuid();
 			$insert->name = $request->name;
 			$insert->semester = $request->semester;
 			$insert->sks = $request->sks;
-			$insert->prodi_id = $request->prodi_id;
+			$insert->prodi_id = auth()->user()->isAdmin ? $request->prodi_id : auth()->user()->prodi_id;
 			if ($insert->save()) {
 				return response()->json(['message' => 'Data berhasil disimpan']);
 			}
@@ -118,6 +130,11 @@ class MataKuliahController extends Controller
 	public function edit(MataKuliah $matakuliah)
 	{
 		if (request()->ajax()) {
+			if (!auth()->user()->isAdmin) {
+				if ($matakuliah->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
 			$data = [
 				'url' => route('matakuliah.update', ['matakuliah' => $matakuliah]),
 				'data' => $matakuliah,
@@ -141,22 +158,36 @@ class MataKuliahController extends Controller
 	public function update(Request $request, MataKuliah $matakuliah)
 	{
 		if (request()->ajax()) {
-			$request->validate([
+			if (!auth()->user()->isAdmin) {
+				if ($matakuliah->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
+			$rules = [
 				'name' => 'required',
 				'prodi_id' => 'required',
 				'semester' => 'required|numeric',
-			], [
+			];
+
+			$msgs = [
 				'name.required' => 'Nama matakuliah harus diisi',
 				'prodi_id.required' => 'Program studi harus dipilih',
 				'semester.required' => 'Semester harus diisi',
 				'semester.numeric' => 'Semester harus berupa angka'
-			]);
+			];
+
+			if (!auth()->user()->isAdmin) {
+				unset($rules['prodi_id']);
+				unset($msgs['prodi_id.required']);
+			}
+
+			$request->validate($rules, $msgs);
 
 			$insert = $matakuliah;
 			$insert->name = $request->name;
 			$insert->semester = $request->semester;
 			$insert->sks = $request->sks;
-			$insert->prodi_id = $request->prodi_id;
+			$insert->prodi_id = auth()->user()->isAdmin ? $request->prodi_id : auth()->user()->prodi_id;
 			if ($insert->save()) {
 				return response()->json(['message' => 'Data berhasil disimpan']);
 			}
@@ -174,6 +205,11 @@ class MataKuliahController extends Controller
 	public function delete(MataKuliah $matakuliah)
 	{
 		if (request()->ajax()) {
+			if (!auth()->user()->isAdmin) {
+				if ($matakuliah->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
 			$data = [
 				'url' => route('matakuliah.destroy', ['matakuliah' => $matakuliah]),
 				'data' => ['Mata Kuliah ' . $matakuliah->name, $matakuliah->prodi ? 'Prodi ' . $matakuliah->prodi->name : null]
@@ -188,6 +224,11 @@ class MataKuliahController extends Controller
 	public function destroy(MataKuliah $matakuliah)
 	{
 		if (request()->ajax()) {
+			if (!auth()->user()->isAdmin) {
+				if ($matakuliah->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
 			if ($matakuliah->delete()) {
 				return response()->json(['message' => 'Data berhasil dihapus']);
 			}

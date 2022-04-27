@@ -37,6 +37,7 @@
         <option {{ @$data->jenis_kelamin=='P'?'selected':'' }} value="P">Perempuan</option>
       </select>
     </div>
+    @if (auth()->user()->isAdmin)
     <div class="form-group">
       <label for="iprodi">Program Studi</label>
       <select name="prodi_id" data-placeholder="Pilih Program Studi" class="form-control select2-ajax"
@@ -46,6 +47,7 @@
         @endif
       </select>
     </div>
+    @endif
     <div class="form-group">
       <label for="idosen">Nama Dosen Pembimbing</label>
       <select name="dosen_id" data-placeholder="Pilih dosen pembimbing" class="form-control select2-ajax"

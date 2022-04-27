@@ -1,6 +1,7 @@
 <table class="table table-bordered table-hover dtable">
   <thead>
     <tr>
+      <th rowspan="2" class="text-center">UNDUH</th>
       <th rowspan="2" class="text-center">NIM</th>
       <th rowspan="2" class="text-center">NAMA</th>
       @foreach ($semester as $smt)
@@ -41,6 +42,11 @@
     $totaltidaklulus = 0;
     @endphp
     <tr>
+      <td class="text-nowrap text-center">
+        <a href="javascript:void(0)" class="text-info h4" title="Lihat Transkrip"
+          onclick="window.open('{{ route('study.transkrip',['uuid'=>$mhs->user->uuid]) }}','_blank','location=no;width=800;height=600;scrollbar=yes;status;yes')"><i
+            class="fa fa-download" aria-hidden="true"></i></a>
+      </td>
       <td class="text-nowrap">{{ $mhs->nim }}</td>
       <td class="text-nowrap text-uppercase">{{ $mhs->user->name }}</td>
       @foreach ($semester as $smt)
@@ -63,8 +69,8 @@
         <td class="text-center text-nowrap">{{ $ket }}</td>
         @if ($smt->semester==6)
         <td>{{ $totallulus<=$totaltidaklulus?'Rekomendasi D.O.':'' }}</td>
-        @endif
-        @if ($smt->semester==7)
+            @endif
+            @if ($smt->semester==7)
         <td class="text-nowrap">
           {{ $totallulus>0&&$totallulus>$totaltidaklulus?'Memenuhi syarat':'Belum memenuhi syarat' }}</td>
         <td class="text-nowrap">

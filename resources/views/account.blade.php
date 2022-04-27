@@ -1,11 +1,11 @@
 <form class="modal-form" method="POST" data-url="{{ route('account.update') }}">
   @csrf
   <div class="container-fluid">
-    @if (auth()->user()->role == 0)
+    @if (auth()->user()->role == 0 || auth()->user()->isOperator)
     <div class="form-group">
       <label for="iname">Nama</label>
       <input type="text" name="name" class="form-control" id="iname" value="{{ $user->name }}"
-        placeholder="Masukkan nama lengkap" required>
+        placeholder="Masukkan nama lengkap" required {{ auth()->user()->isOperator?'disabled':'' }}>
     </div>
     <div class="form-group">
       <label for="iusername">Username</label>
@@ -28,7 +28,7 @@
       <input type="password" name="newpassword_confirmation" class="form-control" id="irepassword"
         placeholder="Masukkan ulang password baru">
     </div>
-    @if (auth()->user()->role != 0)
+    @if (auth()->user()->role != 0 && !auth()->user()->isOperator)
     <div class="form-group">
       <label for="ipassword">Password (Untuk melakukan perubahan)</label>
       <input type="password" name="password" class="form-control" id="ipassword"

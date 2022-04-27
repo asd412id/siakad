@@ -225,12 +225,15 @@ function modalFunc() {
     $(".table-nilai").each(function () {
       var _tl = $(this);
       $(this).find(".index").each(function () {
+        changeNilai($(this), _tl);
         $(this).off().on('change', function () {
-          let _val = Number($(this).val());
-          let _sks = Number($(this).closest('tr').find('.sks').text());
-          let _total = _val * _sks;
-          $(this).closest('tr').find('.total').text(_total);
-          triggerNilai(_tl);
+          changeNilai($(this), _tl);
+        });
+      });
+      $(this).find(".nil").each(function () {
+        setNilai($(this));
+        $(this).off().on('keyup change', function () {
+          setNilai($(this));
         });
       });
     });
@@ -238,6 +241,62 @@ function modalFunc() {
       $(".tab-pane.show.active").find(".index").val('').trigger('change');
     });
   }
+}
+
+function convertNilai(nilai) {
+  let index = 0;
+  switch (true) {
+    case nilai >= 95:
+      index = 4;
+      break;
+    case nilai >= 90 && nilai <= 94:
+      index = 3.75;
+      break;
+    case nilai >= 85 && nilai <= 89:
+      index = 3.5;
+      break;
+    case nilai >= 80 && nilai <= 84:
+      index = 3.25;
+      break;
+    case nilai >= 75 && nilai <= 79:
+      index = 3;
+      break;
+    case nilai >= 70 && nilai <= 74:
+      index = 2.75;
+      break;
+    case nilai >= 65 && nilai <= 69:
+      index = 2.5;
+      break;
+    case nilai >= 61 && nilai <= 64:
+      index = 2.25;
+      break;
+    case nilai >= 55 && nilai <= 60:
+      index = 2;
+      break;
+    case nilai >= 50 && nilai <= 54:
+      index = 1;
+      break;
+    case nilai <= 49:
+      index = 0;
+      break;
+  }
+
+  return index;
+}
+
+function setNilai(dl) {
+  let _val = Number(dl.val());
+  let _index = dl.closest('tr').find('.index');
+  let idx = convertNilai(_val);
+  _index.val(idx);
+  _index.trigger('change');
+}
+function changeNilai(dl, _tl) {
+  let _val = Number(dl.val());
+  let _sks = Number(dl.closest('tr').find('.sks').text());
+  let _total = _val * _sks;
+  dl.closest('tr').find('.total').text(_total);
+  triggerNilai(_tl);
 }
 
 function triggerNilai(tbl) {

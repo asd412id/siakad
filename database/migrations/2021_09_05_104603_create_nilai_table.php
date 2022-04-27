@@ -18,9 +18,10 @@ class CreateNilaiTable extends Migration
             $table->bigInteger('mahasiswa_id');
             $table->bigInteger('mata_kuliah_id');
             $table->integer('sks');
-            $table->char('index_nilai', 1)->comment('A - E');
-            $table->char('poin_nilai', 1)->comment('4 - 0');
-            $table->integer('total_nilai')->comment('sks x poin_nilai');
+            $table->integer('bnilai')->comment('Big Nilai');
+            $table->char('index_nilai', 2)->comment('A+ - E');
+            $table->char('poin_nilai', 5)->comment('4 - 0');
+            $table->float('total_nilai')->comment('sks x poin_nilai');
             $table->json('opt')->nullable();
             $table->timestamps();
         });

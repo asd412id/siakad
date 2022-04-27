@@ -5,6 +5,7 @@ use App\Http\Controllers\DosenController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\ProdiController;
 use App\Http\Controllers\MataKuliahController;
+use App\Http\Controllers\OperatorController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\StudyController;
 use Illuminate\Support\Facades\Route;
@@ -36,12 +37,17 @@ Route::middleware('auth')->group(function () {
 	Route::get('/search/makul', [SearchController::class, 'mataKuliah'])->name('makul.search');
 	Route::get('/search/dosen', [SearchController::class, 'dosen'])->name('dosen.search');
 
-	Route::middleware('role:0')->group(function () {
-		Route::resource('prodi', ProdiController::class);
-		Route::get('/prodi/{prodi}/delete', [ProdiController::class, 'delete'])->name('prodi.delete');
+	Route::middleware('role:0,3')->group(function () {
+		Route::middleware('role:0')->group(function () {
+			Route::resource('prodi', ProdiController::class);
+			Route::get('/prodi/{prodi}/delete', [ProdiController::class, 'delete'])->name('prodi.delete');
+		});
 
 		Route::resource('matakuliah', MataKuliahController::class);
 		Route::get('/matakuliah/{matakuliah}/delete', [MataKuliahController::class, 'delete'])->name('matakuliah.delete');
+
+		Route::resource('operator', OperatorController::class);
+		Route::get('/operator/{operator}/delete', [OperatorController::class, 'delete'])->name('operator.delete');
 
 		Route::resource('dosen', DosenController::class);
 		Route::get('/dosen/{dosen}/delete', [DosenController::class, 'delete'])->name('dosen.delete');
@@ -56,4 +62,6 @@ Route::middleware('auth')->group(function () {
 
 	Route::get('/studi', [StudyController::class, 'index'])->name('study.index');
 	Route::post('/query', [StudyController::class, 'query'])->name('study.query');
+
+	Route::get('/transkrip/{uuid}', [StudyController::class, 'transkrip'])->name('study.transkrip');
 });

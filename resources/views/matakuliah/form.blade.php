@@ -21,6 +21,7 @@
       <input type="number" name="sks" class="form-control" id="isks" placeholder="Jumlah SKS"
         value="{{ @$data->sks??2 }}">
     </div>
+    @if (auth()->user()->isAdmin)
     <div class="form-group">
       <label for="iprodi">Program Studi</label>
       <select name="prodi_id" class="form-control select2-ajax" data-url="{{ route('prodi.search') }}" id="iprodi"
@@ -31,6 +32,7 @@
         @endif
       </select>
     </div>
+    @endif
     <button type="submit" class="btn btn-block btn-primary">Simpan</button>
   </div>
 </form>

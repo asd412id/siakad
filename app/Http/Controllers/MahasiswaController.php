@@ -28,6 +28,9 @@ class MahasiswaController extends Controller
 				->with('dosen.user')
 				->with('user')
 				->select('mahasiswas.*');
+			if (!auth()->user()->isAdmin) {
+				$data->where('prodi_id', auth()->user()->prodi_id);
+			}
 			return DataTables::of($data)
 				->addColumn('action', function ($row) {
 
@@ -81,16 +84,24 @@ class MahasiswaController extends Controller
 	public function store(Request $request)
 	{
 		if (request()->ajax()) {
-			$request->validate([
+			$rules = [
 				'name' => 'required',
 				'prodi_id' => 'required',
 				'nim' => 'required|unique:users,username',
-			], [
+			];
+			$msgs = [
 				'name.required' => 'Nama mahasiswa harus diisi',
 				'prodi_id.required' => 'Program studi harus dipilih',
 				'nim.required' => 'NIM harus diisi',
 				'nim.unique' => 'NIM telah digunakan'
-			]);
+			];
+
+			if (!auth()->user()->isAdmin) {
+				unset($rules['prodi_id']);
+				unset($msgs['prodi_id.required']);
+			}
+
+			$request->validate($rules, $msgs);
 
 			$user = new User();
 			$user->uuid = Str::uuid();
@@ -106,7 +117,7 @@ class MahasiswaController extends Controller
 				$insert->tempat_lahir = $request->tempat_lahir;
 				$insert->tgl_lahir = $request->tgl_lahir;
 				$insert->jenis_kelamin = $request->jenis_kelamin;
-				$insert->prodi_id = $request->prodi_id;
+				$insert->prodi_id = auth()->user()->isAdmin ? $request->prodi_id : auth()->user()->prodi_id;
 				$insert->dosen_id = $request->dosen_id;
 				$insert->status = $request->status;
 				if ($insert->save()) {
@@ -162,16 +173,29 @@ class MahasiswaController extends Controller
 	public function update(Request $request, Mahasiswa $mahasiswa)
 	{
 		if (request()->ajax()) {
-			$request->validate([
+			if (!auth()->user()->isAdmin) {
+				if ($mahasiswa->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
+			$rules = [
 				'name' => 'required',
 				'prodi_id' => 'required',
 				'nim' => 'required|unique:users,username,' . $mahasiswa->user_id,
-			], [
+			];
+			$msgs = [
 				'name.required' => 'Nama mahasiswa harus diisi',
 				'prodi_id.required' => 'Program studi harus dipilih',
 				'nim.required' => 'NIM harus diisi',
 				'nim.unique' => 'NIM telah digunakan'
-			]);
+			];
+
+			if (!auth()->user()->isAdmin) {
+				unset($rules['prodi_id']);
+				unset($msgs['prodi_id.required']);
+			}
+
+			$request->validate($rules, $msgs);
 
 			$user = $mahasiswa->user;
 			$user->name = $request->name;
@@ -188,7 +212,7 @@ class MahasiswaController extends Controller
 				$insert->tempat_lahir = $request->tempat_lahir;
 				$insert->tgl_lahir = $request->tgl_lahir;
 				$insert->jenis_kelamin = $request->jenis_kelamin;
-				$insert->prodi_id = $request->prodi_id;
+				$insert->prodi_id = auth()->user()->isAdmin ? $request->prodi_id : auth()->user()->prodi_id;
 				$insert->dosen_id = $request->dosen_id;
 				$insert->status = $request->status;
 				if ($insert->save()) {
@@ -210,6 +234,11 @@ class MahasiswaController extends Controller
 	public function delete(Mahasiswa $mahasiswa)
 	{
 		if (request()->ajax()) {
+			if (!auth()->user()->isAdmin) {
+				if ($mahasiswa->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
 			$data = [
 				'url' => route('mahasiswa.destroy', ['mahasiswa' => $mahasiswa]),
 				'data' => $mahasiswa->nim . ' - ' . $mahasiswa->user->name
@@ -224,6 +253,11 @@ class MahasiswaController extends Controller
 	public function destroy(Mahasiswa $mahasiswa)
 	{
 		if (request()->ajax()) {
+			if (!auth()->user()->isAdmin) {
+				if ($mahasiswa->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
 			if ($mahasiswa->delete()) {
 				return response()->json(['message' => 'Data berhasil dihapus']);
 			}
@@ -234,6 +268,11 @@ class MahasiswaController extends Controller
 	public function krs(Mahasiswa $mahasiswa)
 	{
 		if (request()->ajax()) {
+			if (!auth()->user()->isAdmin) {
+				if ($mahasiswa->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
 			$semester = MataKuliah::where('prodi_id', $mahasiswa->prodi_id)
 				->select('semester')
 				->distinct('semester')
@@ -260,6 +299,11 @@ class MahasiswaController extends Controller
 	public function krsUpdate(Mahasiswa $mahasiswa, Request $request)
 	{
 		if ($request->ajax()) {
+			if (!auth()->user()->isAdmin) {
+				if ($mahasiswa->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
 			$status = true;
 			$mahasiswa->krs()->delete();
 			if ($request->mk && count($request->mk)) {
@@ -286,6 +330,11 @@ class MahasiswaController extends Controller
 	public function nilai(Mahasiswa $mahasiswa)
 	{
 		if (request()->ajax()) {
+			if (!auth()->user()->isAdmin) {
+				if ($mahasiswa->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
 			$semester = $mahasiswa->krs()
 				->select('semester')
 				->distinct('semester')
@@ -317,41 +366,37 @@ class MahasiswaController extends Controller
 	public function nilaiUpdate(Mahasiswa $mahasiswa, Request $request)
 	{
 		if ($request->ajax()) {
+			if (!auth()->user()->isAdmin) {
+				if ($mahasiswa->prodi_id != auth()->user()->prodi_id) {
+					return response()->json(['message' => 'Akses ditolak!'], 403);
+				}
+			}
 			$status = true;
 			$mahasiswa->nilai()->delete();
-			if ($request->index && count($request->index)) {
-				foreach ($request->index as $smt => $index) {
-					foreach ($index as $mkid => $v) {
+			if ($request->bnilai && count($request->bnilai)) {
+				foreach ($request->bnilai as $smt => $bnilai) {
+					foreach ($bnilai as $mkid => $v) {
 						$mk = MataKuliah::find($mkid);
 						foreach ($v as $n) {
-							$nilai = new Nilai();
-							$nilai->semester = $smt;
-							$nilai->mahasiswa_id = $mahasiswa->id;
-							$nilai->mata_kuliah_id = $mkid;
-							$nilai->sks = $mk->sks;
-							$nilai->poin_nilai = $n;
-							$nilai->total_nilai = $n * $mk->sks;
+							if ($n && !is_null($n)) {
 
-							switch ($n) {
-								case 4:
-									$nilai->index_nilai = 'A';
-									break;
-								case 3:
-									$nilai->index_nilai = 'B';
-									break;
-								case 2:
-									$nilai->index_nilai = 'C';
-									break;
-								case 1:
-									$nilai->index_nilai = 'D';
-									break;
+								if ($n > 100) {
+									$n = 100;
+								}
 
-								default:
-									$nilai->index_nilai = 'E';
-									break;
+								$nilai = new Nilai();
+								$nilai->semester = $smt;
+								$nilai->mahasiswa_id = $mahasiswa->id;
+								$nilai->mata_kuliah_id = $mkid;
+								$nilai->sks = $mk->sks;
+								$nilai->bnilai = $n;
+
+								$nilai->poin_nilai = $this->convertNilai($n);
+								$nilai->index_nilai = $this->indexNilai($nilai->poin_nilai);
+								$nilai->total_nilai = $nilai->poin_nilai * $mk->sks;
+
+								$status = $nilai->save();
 							}
-
-							$status = $nilai->save();
 						}
 					}
 				}
@@ -363,5 +408,89 @@ class MahasiswaController extends Controller
 			return response()->json(['message' => 'Data gagal disimpan'], 500);
 		}
 		return redirect()->route('home')->withErrors('Akses ditolak!');
+	}
+
+	public function indexNilai($nilai)
+	{
+		switch ($nilai) {
+			case 4:
+				$index = 'A+';
+				break;
+			case 3.75:
+				$index = 'A';
+				break;
+			case 3.5:
+				$index = 'A-';
+				break;
+			case 3.25:
+				$index = 'B+';
+				break;
+			case 3:
+				$index = 'B';
+				break;
+			case 2.75:
+				$index = 'B-';
+				break;
+			case 2.5:
+				$index = 'C+';
+				break;
+			case 2.25:
+				$index = 'C';
+				break;
+			case 2:
+				$index = 'C-';
+				break;
+			case 1:
+				$index = 'D';
+				break;
+
+			default:
+				$index = 'E';
+				break;
+		}
+
+		return $index;
+	}
+
+	public function convertNilai($nilai)
+	{
+		$index = 0;
+		switch ($nilai) {
+			case $nilai >= 95:
+				$index = 4;
+				break;
+			case $nilai >= 90 && $nilai <= 94:
+				$index = 3.75;
+				break;
+			case $nilai >= 85 && $nilai <= 89:
+				$index = 3.5;
+				break;
+			case $nilai >= 80 && $nilai <= 84:
+				$index = 3.25;
+				break;
+			case $nilai >= 75 && $nilai <= 79:
+				$index = 3;
+				break;
+			case $nilai >= 70 && $nilai <= 74:
+				$index = 2.75;
+				break;
+			case $nilai >= 65 && $nilai <= 69:
+				$index = 2.5;
+				break;
+			case $nilai >= 61 && $nilai <= 64:
+				$index = 2.25;
+				break;
+			case $nilai >= 55 && $nilai <= 60:
+				$index = 2;
+				break;
+			case $nilai >= 50 && $nilai <= 54:
+				$index = 1;
+				break;
+			case $nilai <= 49:
+				$index = 0;
+				break;
+		}
+
+		return $index;
 	}
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Krs;
 use App\Models\Mahasiswa;
 use App\Models\Nilai;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -38,6 +39,12 @@ class StudyController extends Controller
 				->when(auth()->user()->role == 2, function ($q) {
 					$q->where('id', auth()->user()->mahasiswa->id);
 				})
+				->when(auth()->user()->role == 3, function ($q) use ($request) {
+					$q->where('prodi_id', auth()->user()->prodi_id)
+						->when($request->dosen_id, function ($q, $role) {
+							$q->where('dosen_id', $role);
+						});
+				})
 				->with('prodi')
 				->with('krs')
 				->with('nilai')
@@ -68,5 +75,17 @@ class StudyController extends Controller
 			]);
 		}
 		return redirect()->route('home')->withErrors('Akses ditolak!');
+	}
+
+	public function transkrip($uuid)
+	{
+		$user = User::where('uuid', $uuid)->first();
+		if (!$user) {
+			print('Data tidak ditemukan!');
+			die();
+		}
+
+		$mahasiswa = $user->mahasiswa;
+		return view('study.transkrip', ['data' => $mahasiswa]);
 	}
 }

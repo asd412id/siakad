@@ -18,7 +18,8 @@
       <tr>
         <td>TTL</td>
         <td>:</td>
-        <th>{{ $data->tempat_lahir.', '.$data->tgl_lahir->translatedFormat('j F Y') }}</th>
+        <th>{{ ($data->tempat_lahir??'-').', '.(isset($data->tgl_lahir)?$data->tgl_lahir->translatedFormat('j F Y'):'-')
+          }}</th>
       </tr>
       <tr>
         <td>JK</td>
@@ -39,7 +40,8 @@
         <td>Status</td>
         <td>:</td>
         <th><span
-            class="badge badge-{{ strtolower($data->status)=='aktif'?'success':(strtolower($data->status)=='nonaktif'?'danger':'warning') }}">{{ $data->status }}</span>
+            class="badge badge-{{ strtolower($data->status)=='aktif'?'success':(strtolower($data->status)=='nonaktif'?'danger':'warning') }}">{{
+            $data->status }}</span>
         </th>
       </tr>
     </table>
@@ -85,8 +87,8 @@
                       <tr>
                         <td class="text-center"><input class="mk-choices" type="checkbox"
                             data-target="#mk-choice-{{ $smt->semester }}-{{ $mk->id }}"
-                            name="mk[{{ $smt->semester }}][]" value="{{ $mk->id }}"
-                            {{ @in_array($mk->id,$krsselected)?'checked':'' }}></td>
+                            name="mk[{{ $smt->semester }}][]" value="{{ $mk->id }}" {{
+                            @in_array($mk->id,$krsselected)?'checked':'' }}></td>
                         <td class="mk">{{ $mk->name }}</td>
                         <td class="smt text-center">{{ $mk->semester }}</td>
                         <td class="sks text-center">{{ $mk->sks }}</td>

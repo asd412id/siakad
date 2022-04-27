@@ -34,6 +34,8 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public $appends = ['updated'];
+
     public function dosen()
     {
         return $this->hasOne(Dosen::class);
@@ -41,6 +43,10 @@ class User extends Authenticatable
     public function mahasiswa()
     {
         return $this->hasOne(Mahasiswa::class);
+    }
+    public function prodi()
+    {
+        return $this->belongsTo(Prodi::class);
     }
     public function getIsAdminAttribute()
     {
@@ -53,5 +59,13 @@ class User extends Authenticatable
     public function getIsMahasiswaAttribute()
     {
         return $this->role == 2;
+    }
+    public function getIsOperatorAttribute()
+    {
+        return $this->role == 3;
+    }
+    public function getUpdatedAttribute()
+    {
+        return $this->updated_at->format('d/m/Y H:i');
     }
 }

@@ -13,13 +13,24 @@ class SearchController extends Controller
 	public function mataKuliah(Request $request)
 	{
 		if ($request->ajax()) {
-			$result = MataKuliah::where('name', 'like', "%$request->q%")
+			$query = MataKuliah::where('name', 'like', "%$request->q%")
 				->orWhere('semester', 'like', "%$request->q%")
 				->orWhereHas('prodi', function ($q) use ($request) {
 					$q->where('name', 'like', "%$request->q%");
 				})
-				->select('id', 'name as text')
+				->select('id', 'name as text', 'prodi_id')
 				->get();
+
+
+			$result = $query;
+			if (!auth()->user()->isAdmin) {
+				$result = [];
+				foreach ($query as $key => $v) {
+					if ($v->prodi_id == auth()->user()->prodi_id) {
+						array_push($result, $v);
+					}
+				}
+			}
 
 			return response()->json([
 				'results' => $result
@@ -53,10 +64,19 @@ class SearchController extends Controller
 
 			$result = [];
 			foreach ($query as $key => $v) {
-				array_push($result, [
-					'id' => $v->id,
-					'text' => $v->user->name,
-				]);
+				if (!auth()->user()->isAdmin) {
+					if ($v->prodi_id == auth()->user()->prodi_id) {
+						array_push($result, [
+							'id' => $v->id,
+							'text' => $v->user->name,
+						]);
+					}
+				} else {
+					array_push($result, [
+						'id' => $v->id,
+						'text' => $v->user->name,
+					]);
+				}
 			}
 
 			return response()->json([

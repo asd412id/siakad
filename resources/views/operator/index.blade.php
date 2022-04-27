@@ -5,40 +5,29 @@
 <link rel="stylesheet" href="{{ asset('plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
 <link rel="stylesheet" href="{{ asset('plugins/select2/css/select2.min.css') }}">
 <link rel="stylesheet" href="{{ asset('plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
+<link rel="stylesheet" href="{{ asset('plugins/jquery-ui/jquery-ui.min.css') }}">
 @endsection
 @section('content')
 <div class="card">
   <div class="card-header">
-    <form id="study-query" data-role="{{ auth()->user()->role!=0&&auth()->user()->role!=3?'guest':'' }}" action="#"
-      data-url="{{ route('study.query') }}" method="post" class="form-inline">
-      @csrf
-      @if (auth()->user()->role == 0 || auth()->user()->role == 3)
-      <div class="form-group m-1">
-        <select {{ auth()->user()->isOperator?'disabled':'' }} name="prodi_id" class="form-control select2-ajax"
-          data-placeholder="Pilih Program Studi"
-          data-url="{{ route('prodi.search') }}">
-          <option value="">Pilih Program Studi</option>
-          @if (auth()->user()->isOperator)
-          <option selected value="{{ auth()->user()->prodi_id }}">{{ auth()->user()->prodi->name }}</option>
-          @endif
-        </select>
-      </div>
-      <div class="form-group m-1">
-        <select name="dosen_id" class="form-control select2-ajax" data-url="{{ route('dosen.search') }}"
-          data-placeholder="Pilih Dosen Pembimbing">
-          <option value="">Pilih Dosen Pembimbing</option>
-        </select>
-      </div>
-      @endif
-      <div class="form-group m-1">
-        <button type="submit" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i> Tampilkan
-          Data</button>
-      </div>
-    </form>
+    <a href="#" data-url="{{ route('operator.create') }}" class="btn btn-primary open-modal">Tambah
+      Data</a>
   </div>
   <div class="card-body">
-    <h4 class="text-center">Klik tombol Tampilkan Data untuk
-      menampilkan data studi mahasiswa</h4>
+    <table class="table-list table table-hover table-striped" data-url="{{ route('operator.index') }}"
+      data-cols="action!order|search,name,username,jenis_kelamin,prodi.name,updated!order|search">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nama</th>
+          <th>Username</th>
+          <th>Jenis Kelamin</th>
+          <th>Prodi</th>
+          <th>Terakhir Diubah</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 </div>
 @endsection
@@ -50,6 +39,7 @@
 <script src="{{ asset('plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
 <script src="{{ asset('plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('plugins/select2/js/select2.full.min.js') }}"></script>
+<script src="{{ asset('plugins/jquery-ui/jquery-ui.min.js') }}"></script>
 <script>
 </script>
 @endsection

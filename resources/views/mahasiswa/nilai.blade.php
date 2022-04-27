@@ -18,7 +18,8 @@
       <tr>
         <td>TTL</td>
         <td>:</td>
-        <th>{{ $data->tempat_lahir.', '.$data->tgl_lahir->translatedFormat('j F Y') }}</th>
+        <th>{{ ($data->tempat_lahir??'-').', '.(isset($data->tgl_lahir)?$data->tgl_lahir->translatedFormat('j F Y'):'-')
+          }}</th>
       </tr>
       <tr>
         <td>JK</td>
@@ -39,7 +40,8 @@
         <td>Status</td>
         <td>:</td>
         <th><span
-            class="badge badge-{{ strtolower($data->status)=='aktif'?'success':(strtolower($data->status)=='nonaktif'?'danger':'warning') }}">{{ $data->status }}</span>
+            class="badge badge-{{ strtolower($data->status)=='aktif'?'success':(strtolower($data->status)=='nonaktif'?'danger':'warning') }}">{{
+            $data->status }}</span>
         </th>
       </tr>
     </table>
@@ -72,7 +74,7 @@
                       <tr>
                         <th>Mata Kuliah</th>
                         <th class="text-center">Semester</th>
-                        <th class="text-center">NILAI</th>
+                        <th class="text-center" colspan="2">NILAI</th>
                         <th class="text-center">SKS</th>
                         <th class="text-center">Total</th>
                       </tr>
@@ -84,17 +86,26 @@
                       @foreach ($listkrs as $v)
                       @continue($smt->semester != $v->semester)
                       @php($totalsks += $v->sks)
-                      @php($totalnilai += $v->sks * (@$v->nilai->poin_nilai??4))
+                      @php($totalnilai += $v->sks * (@$v->nilai->poin_nilai??0))
                       <tr class="mk-selected" id="mk-choice-{{ $v->semester }}-{{ $v->mata_kuliah_id }}">
-                        <td class="mk">{{ $v->mata_kuliah->name }}</td>
+                        <td class="mk text-nowrap">{{ $v->mata_kuliah->name }}</td>
                         <td class="smt text-center">{{ $v->mata_kuliah->semester }}</td>
+                        <td><input type="number" class="form-control nil"
+                            name="bnilai[{{ $smt->semester }}][{{ $v->mata_kuliah_id }}][]"
+                            value="{{ $v->nilai&&$v->nilai->bnilai?$v->nilai->bnilai:null }}"></td>
                         <td>
-                          <select name="index[{{ $smt->semester }}][{{ $v->mata_kuliah_id }}][]"
+                          <select disabled name="index[{{ $smt->semester }}][{{ $v->mata_kuliah_id }}][]"
                             class="form-control index">
-                            <option value="">Pilih Nilai</option>
-                            <option {{ $v->nilai&&$v->nilai->poin_nilai==4?'selected':'' }} value="4">A</option>
+                            <option value="">Index</option>
+                            <option {{ $v->nilai&&$v->nilai->poin_nilai==4?'selected':'' }} value="4">A+</option>
+                            <option {{ $v->nilai&&$v->nilai->poin_nilai==3.75?'selected':'' }} value="3.75">A</option>
+                            <option {{ $v->nilai&&$v->nilai->poin_nilai==3.5?'selected':'' }} value="3.5">A-</option>
+                            <option {{ $v->nilai&&$v->nilai->poin_nilai==3.25?'selected':'' }} value="3.25">B+</option>
                             <option {{ $v->nilai&&$v->nilai->poin_nilai==3?'selected':'' }} value="3">B</option>
-                            <option {{ $v->nilai&&$v->nilai->poin_nilai==2?'selected':'' }} value="2">C</option>
+                            <option {{ $v->nilai&&$v->nilai->poin_nilai==2.75?'selected':'' }} value="2.75">B-</option>
+                            <option {{ $v->nilai&&$v->nilai->poin_nilai==2.5?'selected':'' }} value="2.5">C+</option>
+                            <option {{ $v->nilai&&$v->nilai->poin_nilai==2.25?'selected':'' }} value="2.25">C</option>
+                            <option {{ $v->nilai&&$v->nilai->poin_nilai==2?'selected':'' }} value="2">C-</option>
                             <option {{ $v->nilai&&$v->nilai->poin_nilai==1?'selected':'' }} value="1">D</option>
                             <option {{ $v->nilai&&$v->nilai->poin_nilai==0?'selected':'' }} value="0">E</option>
                           </select>
@@ -104,13 +115,13 @@
                       </tr>
                       @endforeach
                       <tr>
-                        <td colspan="3" class="text-center">TOTAL</td>
+                        <td colspan="4" class="text-center">TOTAL</td>
                         <th class="text-center totalsk">{{ $totalsks }}</th>
                         <th class="text-center totalnilai">{{ $totalnilai }}</th>
                       </tr>
                       <tr>
-                        <td colspan="3" class="text-center">IPS</td>
-                        <th colspan="2" class="text-center ips">{{ number_format(round($totalnilai/$totalsks,2),2) }}
+                        <td colspan="4" class="text-center">IPS</td>
+                        <th colspan="3" class="text-center ips">{{ number_format(round($totalnilai/$totalsks,2),2) }}
                         </th>
                       </tr>
                     </tbody>
